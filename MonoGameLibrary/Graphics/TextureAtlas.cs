@@ -143,9 +143,5 @@ public class TextureAtlas
         }
     }
 
-    private void _SetAnimation()
-    {
-
-    }
 }
 
