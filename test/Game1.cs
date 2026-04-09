@@ -1,5 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGameLibrary;
@@ -23,6 +25,12 @@ public class Game1 : Core
 
     private const float MOVEMENT_SPEED = 5.0f;
     private const float SPEED_MULTIPLIER = 2.0f;
+
+    private SoundEffect _bounceSoundEffect;
+    private SoundEffect _collectSoundEffect;
+
+    private SoundEffectInstance _collectSoundEffectInstance;
+    private SoundEffectInstance _bounceSoundEffectInstance;
 
     public Game1() : base("Dungeon Slime", 1280, 720, false)
     {
@@ -66,6 +74,27 @@ public class Game1 : Core
 
         _bat = atlas.CreateAnimatedSprite("bat-animation");
         _bat.Scale = new Vector2(4f, 4f);
+
+        _bounceSoundEffect = Content.Load<SoundEffect>("audio/bounce");
+        _collectSoundEffect = Content.Load<SoundEffect>("audio/collect");
+
+        _bounceSoundEffectInstance = _bounceSoundEffect.CreateInstance();
+        _collectSoundEffectInstance = _collectSoundEffect.CreateInstance();
+
+        _bounceSoundEffectInstance.Pitch = -0.4f;
+        _collectSoundEffectInstance.Pitch = -0.4f;
+
+
+        Song theme = Content.Load<Song>("audio/theme");
+
+        // Ensure media player is not already playing on device, if so, stop it
+        if (MediaPlayer.State == MediaState.Playing)
+        {
+            MediaPlayer.Stop();
+        }
+
+        MediaPlayer.Play(theme);
+        MediaPlayer.IsRepeating = true;
     }
 
     protected override void Update(GameTime gameTime)
@@ -149,6 +178,7 @@ public class Game1 : Core
         {
             normal.Normalize();
             _batVelocity = Vector2.Reflect(_batVelocity, normal);
+            _bounceSoundEffectInstance.Play();
         }
 
         _batPosition = newBatPosition;
@@ -162,6 +192,8 @@ public class Game1 : Core
             _batPosition = new Vector2(column * _bat.Width, row * _bat.Height);
 
             AssignRandomBatVelocity();
+
+            _collectSoundEffectInstance.Play();
         }
 
         base.Update(gameTime);
