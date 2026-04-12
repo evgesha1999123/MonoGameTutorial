@@ -29,8 +29,7 @@ public class Game1 : Core
     private SoundEffect _bounceSoundEffect;
     private SoundEffect _collectSoundEffect;
 
-    private SoundEffectInstance _collectSoundEffectInstance;
-    private SoundEffectInstance _bounceSoundEffectInstance;
+    private Song _themeSong;
 
     public Game1() : base("Dungeon Slime", 1280, 720, false)
     {
@@ -59,6 +58,8 @@ public class Game1 : Core
         _batPosition = new Vector2(_roomBounds.Left, _roomBounds.Top);
 
         AssignRandomBatVelocity();
+
+        Audio.PlaySong(_themeSong);
     }
 
     protected override void LoadContent()
@@ -78,23 +79,7 @@ public class Game1 : Core
         _bounceSoundEffect = Content.Load<SoundEffect>("audio/bounce");
         _collectSoundEffect = Content.Load<SoundEffect>("audio/collect");
 
-        _bounceSoundEffectInstance = _bounceSoundEffect.CreateInstance();
-        _collectSoundEffectInstance = _collectSoundEffect.CreateInstance();
-
-        _bounceSoundEffectInstance.Pitch = -0.4f;
-        _collectSoundEffectInstance.Pitch = -0.4f;
-
-
-        Song theme = Content.Load<Song>("audio/theme");
-
-        // Ensure media player is not already playing on device, if so, stop it
-        if (MediaPlayer.State == MediaState.Playing)
-        {
-            MediaPlayer.Stop();
-        }
-
-        MediaPlayer.Play(theme);
-        MediaPlayer.IsRepeating = true;
+        _themeSong = Content.Load<Song>("audio/theme");
     }
 
     protected override void Update(GameTime gameTime)
@@ -178,7 +163,8 @@ public class Game1 : Core
         {
             normal.Normalize();
             _batVelocity = Vector2.Reflect(_batVelocity, normal);
-            _bounceSoundEffectInstance.Play();
+
+            Audio.PlaySoundEffect(_bounceSoundEffect);
         }
 
         _batPosition = newBatPosition;
@@ -193,7 +179,7 @@ public class Game1 : Core
 
             AssignRandomBatVelocity();
 
-            _collectSoundEffectInstance.Play();
+            Audio.PlaySoundEffect(_collectSoundEffect);
         }
 
         base.Update(gameTime);
@@ -242,6 +228,24 @@ public class Game1 : Core
         if (Input.Keyboard.IsKeyDown(Keys.D) || Input.Keyboard.IsKeyDown(Keys.Right))
         {
             _slimePosition.X += speed;
+        }
+
+        // Toggle Mute state on 'M' pressed
+        if (Input.Keyboard.WasKeyJustPressed(Keys.M))
+        {
+            Audio.ToggleMute();
+        }
+
+        if (Input.Keyboard.WasKeyJustPressed(Keys.OemPlus))
+        {
+            Audio.SongVolume += 0.1f;
+            Audio.SoundEffectVolume += 0.1f;
+        }
+
+        if (Input.Keyboard.WasKeyJustPressed(Keys.OemMinus))
+        {
+            Audio.SongVolume -= 0.1f;
+            Audio.SoundEffectVolume -= 0.1f;
         }
     }
 

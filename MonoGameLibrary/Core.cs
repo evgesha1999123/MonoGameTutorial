@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGameLibrary.Audio;
 using MonoGameLibrary.Input;
 
 namespace MonoGameLibrary;
@@ -38,6 +39,11 @@ public class Core : Game
 
     public static InputManager Input {  get; private set; }
     public static bool ExitOnEscape { get; set; }
+
+    /// <summary>
+    /// Gets a reference to the audio control system.
+    /// </summary>
+    public static AudioController Audio { get; private set; }
 
     /// <summary>
     /// Creates a new Core instance.
@@ -96,6 +102,17 @@ public class Core : Game
         SpriteBatch = new SpriteBatch(GraphicsDevice);
 
         Input = new InputManager();
+
+        // Create a new audio controller
+        Audio = new AudioController();
+    }
+
+    protected override void UnloadContent()
+    {
+        // Dispose of the audio controller
+        Audio.Dispose();
+
+        base.UnloadContent();
     }
 
     protected override void Update(GameTime gameTime)
