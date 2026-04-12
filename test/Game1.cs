@@ -31,6 +31,11 @@ public class Game1 : Core
 
     private Song _themeSong;
 
+    private SpriteFont _font;
+    private int _score;
+    private Vector2 _scoreTextPosition;
+    private Vector2 _scoreTextOrigin;
+
     public Game1() : base("Dungeon Slime", 1280, 720, false)
     {
 
@@ -46,20 +51,25 @@ public class Game1 : Core
 
         _roomBounds = new Rectangle(
             (int)_tilemap.TileWidth,
-            (int)_tilemap.TIleHeight,
+            (int)_tilemap.TileHeight,
             screenBounds.Width - (int)_tilemap.TileWidth * 2,
-            screenBounds.Height - (int)_tilemap.TIleHeight * 2
+            screenBounds.Height - (int)_tilemap.TileHeight * 2
          );
 
         int centerRow = _tilemap.Rows / 2;
         int centerColumn = _tilemap.Columns / 2;
 
-        _slimePosition = new Vector2(centerColumn * _tilemap.TileWidth, centerRow * _tilemap.TIleHeight);
+        _slimePosition = new Vector2(centerColumn * _tilemap.TileWidth, centerRow * _tilemap.TileHeight);
         _batPosition = new Vector2(_roomBounds.Left, _roomBounds.Top);
 
         AssignRandomBatVelocity();
 
         Audio.PlaySong(_themeSong);
+
+        _scoreTextPosition = new Vector2(_roomBounds.Left, _tilemap.TileHeight * 0.5f);
+
+        float scoreTextYOrigin = _font.MeasureString("Score").Y * 0.5f;
+        _scoreTextOrigin = new Vector2(0, scoreTextYOrigin);
     }
 
     protected override void LoadContent()
@@ -80,6 +90,8 @@ public class Game1 : Core
         _collectSoundEffect = Content.Load<SoundEffect>("audio/collect");
 
         _themeSong = Content.Load<Song>("audio/theme");
+
+        _font = Content.Load<SpriteFont>("fonts/04B_30");
     }
 
     protected override void Update(GameTime gameTime)
@@ -180,6 +192,8 @@ public class Game1 : Core
             AssignRandomBatVelocity();
 
             Audio.PlaySoundEffect(_collectSoundEffect);
+
+            _score += 100;
         }
 
         base.Update(gameTime);
@@ -305,6 +319,18 @@ public class Game1 : Core
         _tilemap.Draw(SpriteBatch);
         _slime.Draw(SpriteBatch, _slimePosition);
         _bat.Draw(SpriteBatch, _batPosition);
+
+        SpriteBatch.DrawString(
+            _font,
+            $"Score: {_score}",
+            _scoreTextPosition,
+            Color.White,
+            0.0f,
+            _scoreTextOrigin,
+            1.0f,
+            SpriteEffects.None,
+            0.0f
+        );
 
         SpriteBatch.End();
 
